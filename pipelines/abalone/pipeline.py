@@ -130,7 +130,8 @@ def get_pipeline(
         name="TrainingInstanceType", default_value="ml.m5.xlarge"
     )
     model_approval_status = ParameterString(
-        name="ModelApprovalStatus", default_value="PendingManualApproval"
+        name="ModelApprovalStatus",
+        default_value="PendingManualApproval" # [PendingManualApproval, Approved, Rejected]
     )
     input_data = ParameterString(
         name="InputDataUrl",
@@ -205,7 +206,7 @@ def get_pipeline(
         instance_count=1,
         output_path=model_path,
         base_job_name=f"{base_job_prefix}/abalone-train",
-        role=role,
+        role=role
     )
     step_train = TrainingStep(
         name="TrainAbaloneModel",
