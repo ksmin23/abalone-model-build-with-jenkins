@@ -33,6 +33,15 @@ def input_fn(request_body, request_content_type):
     and invokes the `input_fn`.
     Return a DMatrix (an object that can be passed to predict_fn).
     """
+
+    try:
+        import redis
+        print("[INFO] redis version: ", redis.__version__)
+    except Exception as ex:
+        print("[ERROR] failed to installl custom package")
+        import traceback
+        traceback.print_exc()
+
     if request_content_type == "application/json":
         print("Recieved content type is json")
         print("input_data is", request_body)
