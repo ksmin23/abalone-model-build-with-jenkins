@@ -159,6 +159,12 @@ def get_pipeline(
         job_arguments=["--input-data", input_data],
     )
 
+    #TODO: set train, validation, test data location
+    account_id = sagemaker_project_arn.split(':')[4]
+    TRAIN_DATA_S3_URI = f's3://sagemaker-{region}-{account_id}/abalone/train/train.csv'
+    VALIDATION_DATA_S3_URI = f's3://sagemaker-{region}-{account_id}/abalone/validation/validation.csv'
+    TEST_DATA_S3_URI = f's3://sagemaker-{region}-{account_id}/abalone/test/test.csv'
+
     # training step for generating model artifacts
     model_path = f"s3://{sagemaker_session.default_bucket()}/{base_job_prefix}/AbaloneTrain"
     # image_uri = sagemaker.image_uris.retrieve(
@@ -213,15 +219,17 @@ def get_pipeline(
         estimator=xgb_train,
         inputs={
             "train": TrainingInput(
-                s3_data=step_process.properties.ProcessingOutputConfig.Outputs[
-                    "train"
-                ].S3Output.S3Uri,
+                # s3_data=step_process.properties.ProcessingOutputConfig.Outputs[
+                #     "train"
+                # ].S3Output.S3Uri,
+                s3_data=TRAIN_DATA_S3_URI,
                 content_type="text/csv",
             ),
             "validation": TrainingInput(
-                s3_data=step_process.properties.ProcessingOutputConfig.Outputs[
-                    "validation"
-                ].S3Output.S3Uri,
+                # s3_data=step_process.properties.ProcessingOutputConfig.Outputs[
+                #     "validation"
+                # ].S3Output.S3Uri,
+                s3_data=VALIDATION_DATA_S3_URI,
                 content_type="text/csv",
             ),
         },
@@ -252,9 +260,10 @@ def get_pipeline(
                 destination="/opt/ml/processing/model",
             ),
             ProcessingInput(
-                source=step_process.properties.ProcessingOutputConfig.Outputs[
-                    "test"
-                ].S3Output.S3Uri,
+                # source=step_process.properties.ProcessingOutputConfig.Outputs[
+                #     "test"
+                # ].S3Output.S3Uri,
+                source=TEST_DATA_S3_URI,
                 destination="/opt/ml/processing/test",
             ),
         ],
@@ -321,9 +330,10 @@ def get_pipeline(
             processing_instance_count,
             training_instance_type,
             model_approval_status,
-            input_data,
+            # input_data,
         ],
-        steps=[step_process, step_train, step_eval, step_cond],
+        # steps=[step_process, step_train, step_eval, step_cond],
+        steps=[step_train, step_eval, step_cond],
         sagemaker_session=sagemaker_session,
     )
     return pipeline
